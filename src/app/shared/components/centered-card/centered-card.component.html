@@ -1,0 +1,9 @@
+<div class="border rounded bg-white shadow p-4">
+    <div class="mb-4" *ngIf="title || subTitle">
+        <h5 class="text-lg" *ngIf="title">{{ title }}</h5>
+        <h6 class="text-gray-600" *ngIf="subTitle">{{ subTitle }}</h6>
+    </div>
+    <div class="text-center">
+        <ng-content></ng-content>
+    </div>
+</div>

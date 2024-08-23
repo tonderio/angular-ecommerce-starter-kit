@@ -1,0 +1,155 @@
+<ng-container>
+    <div>
+        Este ejemplo muestra un formulario de tarjeta completamente
+        customizable:
+    </div>
+    <ul>
+        <li>- Diseñar la interfaz según sus preferencias</li>
+        <li>- Estructurar los campos de acuerdo a sus necesidades</li>
+    </ul>
+    <p-messages [(value)]="messages" [closable]="false" />
+    <!--        Muestre aquí un loader mientras se inicializa el checkout -->
+    <div *ngIf="loading"><strong>Cargando...</strong></div>
+    <!--        Muestre aquí su formulario, tarjetas del customer, métodos de pago, etc -->
+    <form *ngIf="!loading" [formGroup]="paymentForm" (ngSubmit)="pay()">
+        <div class="form-group">
+            <label for="card-number">Número de Tarjeta</label>
+            <input
+                [maskito]="cardMask"
+                type="text"
+                id="card-number"
+                formControlName="card_number"
+                minlength="12"
+                maxlength="19"
+                placeholder="1234 5678 9012 3456"
+                required
+                [ngClass]="{
+                    '!border-red-500':
+                        paymentForm.get('card_number')?.invalid &&
+                        paymentForm.get('card_number')?.touched
+                }"
+            />
+            <div
+                *ngIf="
+                    paymentForm.get('card_number')?.invalid &&
+                    paymentForm.get('card_number')?.touched
+                "
+                class="text-red-500"
+            >
+                Número de tarjeta inválido
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="card-name">Nombre en la Tarjeta</label>
+            <input
+                type="text"
+                id="card-name"
+                formControlName="cardholder_name"
+                placeholder="John Doe"
+                required
+                [maskito]="cardholderNameMask"
+                [ngClass]="{
+                    '!border-red-500':
+                        paymentForm.get('cardholder_name')?.invalid &&
+                        paymentForm.get('cardholder_name')?.touched
+                }"
+            />
+            <div
+                *ngIf="
+                    paymentForm.get('cardholder_name')?.invalid &&
+                    paymentForm.get('cardholder_name')?.touched
+                "
+                class="text-red-500"
+            >
+                Nombre inválido
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="month">Fecha de Expiración</label>
+                <div class="form-row">
+                    <div>
+                        <input
+                            class="input-md"
+                            type="text"
+                            id="month"
+                            formControlName="expiration_month"
+                            placeholder="MM"
+                            required
+                            [maskito]="monthMask"
+                            [ngClass]="{
+                                '!border-red-500':
+                                    paymentForm.get('expiration_month')
+                                        ?.invalid &&
+                                    paymentForm.get('expiration_month')?.touched
+                            }"
+                        />
+                        <div
+                            *ngIf="
+                                paymentForm.get('expiration_month')?.invalid &&
+                                paymentForm.get('expiration_month')?.touched
+                            "
+                            class="text-red-500"
+                        >
+                            Mes inválido
+                        </div>
+                    </div>
+
+                    <div>
+                        <input
+                            class="input-md"
+                            type="text"
+                            id="year"
+                            formControlName="expiration_year"
+                            placeholder="AA"
+                            required
+                            [maskito]="yearMask"
+                            [ngClass]="{
+                                '!border-red-500':
+                                    paymentForm.get('expiration_year')
+                                        ?.invalid &&
+                                    paymentForm.get('expiration_year')?.touched
+                            }"
+                        />
+                        <div
+                            *ngIf="
+                                paymentForm.get('expiration_year')?.invalid &&
+                                paymentForm.get('expiration_year')?.touched
+                            "
+                            class="text-red-500"
+                        >
+                            Año inválido
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="cvv">CVV</label>
+                <input
+                    class="input-md"
+                    type="text"
+                    id="cvv"
+                    formControlName="cvv"
+                    placeholder="123"
+                    required
+                    [maskito]="cvvMask"
+                />
+                <div
+                    *ngIf="
+                        paymentForm.get('cvv')?.invalid &&
+                        paymentForm.get('cvv')?.touched
+                    "
+                    class="text-red-500"
+                >
+                    CVV inválido
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn">
+            <span *ngIf="!loadingPayment">Pagar</span>
+            <span *ngIf="loadingPayment">Procesando...</span>
+        </button>
+    </form>
+    <br />
+    <br />
+</ng-container>

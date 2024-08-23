@@ -1,0 +1,19 @@
+<ng-container>
+  <div class="alert alert-info my-4" role="alert">
+    Este es un ejemplo para integrar el formulario de pago de Tonder
+  </div>
+    <p-messages [(value)]="messages" [closable]="false"/>
+    <div class="checkout-container">
+    <form id="payment-form">
+      <div id="tonder-checkout"></div>
+    </form>
+    <div class="button-container">
+      <button class="btn-primary mt-6 w-full space-x-2" id="pay-button" (click)="pay()">
+          <span *ngIf="!loadingPayment">Pagar</span>
+          <span *ngIf="loadingPayment">Procesando...</span>
+      </button>
+    </div>
+  </div>
+  <br />
+  <br />
+</ng-container>

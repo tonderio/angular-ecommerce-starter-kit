@@ -1,0 +1,42 @@
+<form #signInForm="ngForm"
+      class="space-y-6"
+      (submit)="signIn()">
+    <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+        <div class="mt-1">
+            <input [(ngModel)]="emailAddress" id="email" name="email" type="email" autocomplete="email" required
+                   class="input-text">
+        </div>
+    </div>
+
+    <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <div class="mt-1">
+            <input [(ngModel)]="password" id="password" name="password" type="password"
+                   autocomplete="current-password" required
+                   class="input-text">
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <input id="remember-me" name="remember-me" type="checkbox"
+                   [(ngModel)]="rememberMe"
+                   class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+            <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+        </div>
+
+        <div class="text-sm">
+            <a [routerLink]="['/account/forgotten-password', { email: this.emailAddress ?? '' }]"
+               class="font-medium text-primary-600 hover:text-primary-500">Forgot your password?</a>
+        </div>
+    </div>
+        <button type="submit"
+                [disabled]="signInForm.invalid || signInForm.pristine"
+                class="w-full btn-primary">
+            Sign in
+        </button>
+    <div *ngIf="displayRegisterLink" class="text-sm font-medium text-primary-600 hover:text-primary-500 mx-auto">
+        <a [routerLink]="['/account/register']">No account? Register here</a>
+    </div>
+</form>

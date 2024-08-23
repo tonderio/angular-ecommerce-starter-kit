@@ -1,0 +1,17 @@
+<ng-container>
+
+
+    <p-accordion [activeIndex]="activeTab" (activeIndexChange)="setActiveTab($event)">
+        <p-accordionTab header="Pagar con 'INLINE SDK'">
+            <vsf-checkout-tonder-inline *ngIf="activeTab===0"></vsf-checkout-tonder-inline>
+
+        </p-accordionTab>
+        <p-accordionTab header="Pagar con 'LITE SDK - TARJETA'">
+            <vsf-checkout-tonder-lite-card *ngIf="activeTab===1"></vsf-checkout-tonder-lite-card>
+
+        </p-accordionTab>
+        <p-accordionTab header="Pagar con 'LITE SDK - METODO DE PAGO'">
+            <vsf-checkout-tonder-lite-payment-method *ngIf="activeTab===2"></vsf-checkout-tonder-lite-payment-method>
+        </p-accordionTab>
+    </p-accordion>
+</ng-container>

@@ -1,0 +1,29 @@
+@import "variables";
+
+.header {
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+
+    img.logo {
+        max-height: 42px;
+        animation: hue-rotate 10s infinite;
+    }
+
+    &:link, &:visited {
+        color: #0e95c7;
+        font-size: 22px;
+    }
+}
+
+@keyframes hue-rotate {
+  0% {
+    filter: hue-rotate(0deg) brightness(0.9);
+  }
+
+  100% {
+    filter: hue-rotate(360deg) brightness(0.9);
+  }
+}

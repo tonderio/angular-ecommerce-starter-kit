@@ -1,0 +1,34 @@
+<div class="relative">
+    <div
+        aria-hidden="true"
+        class="absolute inset-0 overflow-hidden"
+    >
+        <img
+            class="absolute inset-0 w-full object-cover h-full"
+            [src]="heroImage + '?w=800&format=webp'"
+            alt="header"
+        />
+        <!--<div class="absolute inset-0 bg-gradient-to-br from-zinc-50 to-zinc-900 mix-blend-darken"></div>-->
+    </div>
+    <div
+        aria-hidden="true"
+        class="absolute inset-0 bg-gray-900 opacity-80"
+    ></div>
+    <div class="relative max-w-3xl mx-auto py-16 px-6 flex flex-col items-center text-center sm:pt-72 sm:pb-72 lg:px-0">
+        <div class="relative bg-zinc-800 bg-opacity-0 rounded-lg p-0">
+            <h1 class="text-6xl text-transparent bg-clip-text font-extrabold tracking-normal lg:text-6xl bg-gradient-to-r from-white to-gray-200">
+                <a href="https://tonder.io/" target="_blank">Tonder</a><br/> <span class="text-[#aa2d2f] glow">Angular</span> Starter
+            </h1>
+        </div>
+    </div>
+</div>
+<div class="max-w-6xl mx-auto px-4 pt-12">
+    <div class="box-content py-2 px-2 relative overflow-x-auto xl:overflow-visible">
+        <div
+            class="grid justify-items-center grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-8 sm:px-6 lg:px-8 xl:relative xl:px-0 xl:space-x-0 xl:gap-x-8">
+            <vsf-collection-card *ngFor="let collection of collections$ | async"
+                                 [collection]="collection">
+            </vsf-collection-card>
+        </div>
+    </div>
+</div>

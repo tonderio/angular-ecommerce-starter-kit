@@ -1,0 +1,72 @@
+<ng-container>
+    <div class="alert alert-info my-4" role="alert">
+        El SDK ofrece flexibilidad en la implementación del proceso de pago:
+    </div>
+    <ol>
+        <li>
+            1. Diseño personalizado: Cree su propia interfaz para mostrar:
+            <ul>
+                <li>- Métodos de pago disponibles</li>
+                <li>- Tarjetas guardadas del cliente</li>
+                <li>- Formulario para nueva tarjeta</li>
+            </ul>
+        </li>
+        <li>
+            2. Método directo: Utilice un método de pago específico sin mostrar
+            opciones de selección.
+        </li>
+    </ol>
+    <p-messages [(value)]="messages" [closable]="false" />
+    <!--        Muestre aquí un loader mientras se inicializa el checkout -->
+    <div *ngIf="loading"><strong>Cargando...</strong></div>
+    <div class="p-listbox" *ngIf="!loading">
+        <!--        Muestre aquí el listado de métodos de pago -->
+        <h6>Métodos de pago</h6>
+        <br />
+        <div
+            *ngFor="let method of paymentMethods"
+            class="p-field-radiobutton flex items-center"
+        >
+            <p-radioButton
+                name="paymentMethod"
+                [value]="method"
+                [(ngModel)]="selectedPaymentMethod"
+                (click)="deselectCard()"
+            >
+            </p-radioButton>
+            <img
+                [src]="method.icon"
+                alt="{{ method.label }}"
+                class="w-10 h-10 ml-4"
+            />
+            <span class="ml-4">{{ method.label }}</span>
+        </div>
+        <br />
+
+        <h6>Tarjetas</h6>
+        <br />
+        <div *ngIf="customerCards && !!customerCards.cards">
+            <div
+                *ngFor="let card of customerCards.cards"
+                class="p-field-radiobutton flex items-center mb-2"
+            >
+                <p-radioButton
+                    name="card"
+                    [value]="card.fields.skyflow_id"
+                    [(ngModel)]="selectedCard"
+                    (click)="deselectPaymentMethod()"
+                >
+                </p-radioButton>
+                <fa-icon icon="credit-card" class="ml-4"></fa-icon>
+                <span class="ml-4">{{ card.fields.card_number }}</span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <button (click)="pay()" class="btn">
+        <span *ngIf="!loadingPayment">Pagar</span>
+        <span *ngIf="loadingPayment">Procesando...</span>
+    </button>
+    <br />
+    <br />
+</ng-container>

@@ -1,0 +1,7 @@
+@import "variables";
+
+.overlay-container {
+    &.invisible {
+        transition: visibility 0s 0.3s;
+    }
+}
