@@ -4,17 +4,18 @@ import {
     DefaultSearchPlugin,
     VendureConfig,
 } from '@vendure/core';
-import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
+import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
+const serverPort = +process.env.PORT || 3000;
 
 export const config: VendureConfig = {
     apiOptions: {
-        port: 3000,
+        port: serverPort,
         adminApiPath: 'admin-api',
         shopApiPath: 'shop-api',
         // The following options are useful in development mode,
@@ -40,6 +41,7 @@ export const config: VendureConfig = {
         cookieOptions: {
           secret: process.env.COOKIE_SECRET,
         },
+        requireVerification: false,
     },
     dbConnectionOptions: {
         type: 'better-sqlite3',
@@ -72,21 +74,21 @@ export const config: VendureConfig = {
             outputPath: path.join(__dirname, '../static/email/test-emails'),
             route: 'mailbox',
             handlers: defaultEmailHandlers,
-            templatePath: path.join(__dirname, '../static/email/templates'),
+            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
             globalTemplateVars: {
                 // The following variables will change depending on your storefront implementation.
                 // Here we are assuming a storefront running at http://localhost:8080.
                 fromAddress: '"example" <noreply@example.com>',
                 verifyEmailAddressUrl: 'http://localhost:4200/account/verify',
                 passwordResetUrl: 'http://localhost:4200/account/reset-password',
-                changeEmailAddressUrl: 'http://localhost:4200/change-email-address'
+                changeEmailAddressUrl: 'http://localhost:4200/account/change-email-address'
             },
         }),
         AdminUiPlugin.init({
             route: 'admin',
-            port: 3002,
+            port: serverPort + 2,
             adminUiConfig: {
-                apiPort: 3000,
+                apiPort: serverPort,
             },
         }),
     ],

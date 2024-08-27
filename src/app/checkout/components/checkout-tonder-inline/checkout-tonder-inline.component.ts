@@ -8,13 +8,17 @@ import { TonderInlineService } from "../../services/TonderInlineService";
 import { ITransaction } from "tonder-web-sdk/types/transaction";
 import { StateService } from "../../../core/providers/state/state.service";
 import { DataService } from "../../../core/providers/data/data.service";
-import {GetActiveCustomerQuery, GetOrderForCheckoutQuery} from "../../../common/generated-types";
+import {
+    AddPaymentMutation, AddPaymentMutationVariables,
+    GetActiveCustomerQuery,
+    GetOrderForCheckoutQuery
+} from "../../../common/generated-types";
 import {GET_ACTIVE_CUSTOMER} from "../../../common/graphql/documents.graphql";
-import {switchMap, take} from 'rxjs/operators';
+import { take} from 'rxjs/operators';
 import {IProcessPaymentRequest} from "tonder-web-sdk";
-import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
 import {GET_ORDER_FOR_CHECKOUT} from "../../providers/checkout-resolver.graphql";
+import {ActivatedRoute, Router} from "@angular/router";
+import {ADD_PAYMENT} from "../checkout-payment/checkout-payment.graphql";
 
 @Component({
     selector: "vsf-checkout-tonder-inline",
@@ -31,7 +35,7 @@ import {GET_ORDER_FOR_CHECKOUT} from "../../providers/checkout-resolver.graphql"
                     apiKey: "11e3d3c3e95e0eaabbcae61ebad34ee5f93c3d27",
                     returnUrl:
                         "http://localhost:4200/checkout/payment?tabPayment=0",
-                    mode: "development",
+                    mode: "stage",
                 }),
         },
     ],
@@ -48,6 +52,8 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
         private tonderService: TonderInlineService,
         private dataService: DataService,
         private stateService: StateService,
+        private router: Router,
+        private route: ActivatedRoute
     ) {
         // Datos de ejemplo para el checkout. En un escenario real, estos datos
         // deberían provenir de su aplicación o servicio.
@@ -123,16 +129,16 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
             this.checkoutData = {
                 ...this.checkoutData,
                 cart: {
-                    total: orderData.activeOrder.totalWithTax,
+                    total: orderData.activeOrder.totalWithTax / 100,
                     items: orderData.activeOrder.lines.map(line => ({
                         description: line.productVariant.name,
                         quantity: line.quantity,
-                        price_unit: line.unitPriceWithTax,
+                        price_unit: line.unitPriceWithTax / 100,
                         discount: 0,
                         taxes: 0,
                         product_reference: line.productVariant.id,
                         name: line.productVariant.name,
-                        amount_total: line.unitPriceWithTax,
+                        amount_total: line.unitPriceWithTax / 100,
                     }))
                 },
                 customer: {
@@ -161,6 +167,9 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
             .verify3dsTransaction()
             .then((response: ITransaction | void) => {
                 console.log("Verify 3ds response", response);
+                if(response && 'transaction_status' in response && response.transaction_status === 'Success'){
+                    this.completeOrder();
+                }
             });
     }
 
@@ -173,6 +182,7 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
                 this.checkoutData,
             );
             console.log(response);
+            await this.completeOrder();
             alert("Pago realizado con éxito");
         } catch (error) {
             console.log("ERROR", error);
@@ -180,5 +190,40 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
         } finally {
             this.loadingPayment = false;
         }
+    }
+
+    async completeOrder(){
+        // Completar la orden
+        // Limpiar carrito
+        this.dataService.mutate<AddPaymentMutation, AddPaymentMutationVariables>(ADD_PAYMENT, {
+            input: {
+                method: 'standard-payment',
+                metadata: {},
+            },
+        })
+            .subscribe(async ({ addPaymentToOrder }) => {
+                switch (addPaymentToOrder?.__typename) {
+                    case 'Order':
+                        const order = addPaymentToOrder;
+                        if (order && (order.state === 'PaymentSettled' || order.state === 'PaymentAuthorized')) {
+                            await new Promise<void>(resolve => setTimeout(() => {
+                                this.stateService.setState('activeOrderId', null);
+                                resolve();
+                            }, 500));
+                            this.router.navigate(['../confirmation', order.code], { relativeTo: this.route }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                        break;
+                    case 'OrderPaymentStateError':
+                    case 'PaymentDeclinedError':
+                    case 'PaymentFailedError':
+                    case 'OrderStateTransitionError':
+                        // this.paymentErrorMessage = addPaymentToOrder.message;
+                        break;
+                }
+
+            });
+
     }
 }

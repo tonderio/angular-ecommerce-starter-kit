@@ -17,6 +17,7 @@ import {
     IProcessPaymentRequest,
 } from "tonder-web-sdk";
 import {
+    AddPaymentMutation, AddPaymentMutationVariables,
     GetActiveCustomerQuery,
     GetOrderForCheckoutQuery,
 } from "../../../common/generated-types";
@@ -25,6 +26,8 @@ import { GET_ORDER_FOR_CHECKOUT } from "../../providers/checkout-resolver.graphq
 import { take } from "rxjs/operators";
 import { StateService } from "../../../core/providers/state/state.service";
 import { DataService } from "../../../core/providers/data/data.service";
+import {ADD_PAYMENT} from "../checkout-payment/checkout-payment.graphql";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
     selector: "vsf-checkout-tonder-lite-card",
@@ -41,7 +44,7 @@ import { DataService } from "../../../core/providers/data/data.service";
                     apiKey: "11e3d3c3e95e0eaabbcae61ebad34ee5f93c3d27",
                     returnUrl:
                         "http://localhost:4200/checkout/payment?tabPayment=1",
-                    mode: "development",
+                    mode: "stage",
                 }),
         },
     ],
@@ -88,6 +91,8 @@ export class CheckoutTonderLiteCardComponent implements OnInit, OnDestroy {
         private tonderService: TonderLiteService,
         private dataService: DataService,
         private stateService: StateService,
+        private router: Router,
+        private route: ActivatedRoute
     ) {
         // Datos de ejemplo para el checkout. En un escenario real, estos datos
         // deberían provenir de su aplicación o servicio.
@@ -234,6 +239,9 @@ export class CheckoutTonderLiteCardComponent implements OnInit, OnDestroy {
         // Verificación de transacción 3DS
         this.tonderService.verify3dsTransaction().then((response: any) => {
             console.log("Verify 3ds response", response);
+            if(response && 'transaction_status' in response && response.transaction_status === 'Success'){
+                this.completeOrder();
+            }
         });
 
         this.loading = false;
@@ -261,6 +269,7 @@ export class CheckoutTonderLiteCardComponent implements OnInit, OnDestroy {
                     },
                 });
                 console.log(response);
+                await this.completeOrder();
                 alert("Pago realizado con éxito");
             } catch (error) {
                 alert("Error al realizar el pago");
@@ -270,5 +279,40 @@ export class CheckoutTonderLiteCardComponent implements OnInit, OnDestroy {
         } else {
             alert("Formulario no válido.");
         }
+    }
+
+    async completeOrder(){
+        // Completar la orden
+        // Limpiar carrito
+        this.dataService.mutate<AddPaymentMutation, AddPaymentMutationVariables>(ADD_PAYMENT, {
+            input: {
+                method: 'standard-payment',
+                metadata: {},
+            },
+        })
+            .subscribe(async ({ addPaymentToOrder }) => {
+                switch (addPaymentToOrder?.__typename) {
+                    case 'Order':
+                        const order = addPaymentToOrder;
+                        if (order && (order.state === 'PaymentSettled' || order.state === 'PaymentAuthorized')) {
+                            await new Promise<void>(resolve => setTimeout(() => {
+                                this.stateService.setState('activeOrderId', null);
+                                resolve();
+                            }, 500));
+                            this.router.navigate(['../confirmation', order.code], { relativeTo: this.route }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                        break;
+                    case 'OrderPaymentStateError':
+                    case 'PaymentDeclinedError':
+                    case 'PaymentFailedError':
+                    case 'OrderStateTransitionError':
+                        // this.paymentErrorMessage = addPaymentToOrder.message;
+                        break;
+                }
+
+            });
+
     }
 }

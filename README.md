@@ -33,11 +33,7 @@ Clone this repo https://github.com/tonderio/angular-ecommerce-starter-kit.git
 ## Usage
 0. Open `http://localhost:4200` to see the storefront app running.
 1. Register on the page.
-2. Open your backend and navigate to static/email/test-emails
-3. Find the file that contains the email you used to register and open de file.
-4. In the file, look for a URL similar to the following: http://localhost:4200/account/verify?token=MjAyNC0wOC0yM1QyMDozMDowMS41MjJa_91SGHQFU42W547PD
-5. Open the URL in your browser to verify your email, and enter a password. By default, the password is set to "tonder."
-6. All set, you can select the products you want and proceed to checkout. On the payment page, you will see three example methods to pay with Tonder SDK.
+2. All set, you can select the products you want and proceed to checkout. On the payment page, you will see three example methods to pay with Tonder SDK.
 
 
 ## Deployment
