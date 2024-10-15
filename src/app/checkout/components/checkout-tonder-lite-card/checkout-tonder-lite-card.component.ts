@@ -231,6 +231,7 @@ export class CheckoutTonderLiteCardComponent implements OnInit, OnDestroy {
         // Configuración inicial del checkout con los datos del cliente
         this.tonderService.configureCheckout({
             customer: this.checkoutData.customer,
+            secureToken: ""
         });
 
         // Inicializa funcionalidades lite

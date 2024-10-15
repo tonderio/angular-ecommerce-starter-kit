@@ -158,6 +158,7 @@ export class CheckoutTonderInlineComponent implements OnInit, OnDestroy {
         // Configuración inicial del checkout con los datos del cliente
         this.tonderService.configureCheckout({
             customer: this.checkoutData.customer,
+            secureToken: ""
         });
         // Inyección en el DOM
         await this.tonderService.injectCheckout();

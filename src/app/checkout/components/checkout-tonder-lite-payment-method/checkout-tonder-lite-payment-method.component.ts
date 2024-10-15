@@ -185,6 +185,7 @@ export class CheckoutTonderLitePaymentMethodComponent
         // Configuración inicial del checkout con los datos del cliente
         this.tonderService.configureCheckout({
             customer: this.checkoutData.customer,
+            secureToken: ""
         });
         await this.tonderService.injectCheckout();
 
@@ -198,7 +199,11 @@ export class CheckoutTonderLitePaymentMethodComponent
 
         // Carga de métodos de pago y tarjetas guardadas
         await this.getPaymentMethods();
-        await this.getSavedCars();
+        try{
+            await this.getSavedCars();
+        }catch{
+
+        }
 
         this.loading = false;
         this.cdr.detectChanges();
